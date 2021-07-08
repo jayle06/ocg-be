@@ -19,6 +19,12 @@ func RunServer() {
 
 	baseURL.HandleFunc("/uploads", utils.UploadFile).Methods("POST")
 	images := http.StripPrefix("/images/", http.FileServer(http.Dir("./uploads/")))
+
+	baseURL.HandleFunc("/products", controllers.GetAllProducts).Methods("GET")
+	baseURL.HandleFunc("/products/{id}", controllers.GetProductByID).Methods("GET")
+	baseURL.HandleFunc("/products/{id}", controllers.UpdateProductByID).Methods("PUT")
+	baseURL.HandleFunc("/products", controllers.CreateProduct).Methods("POST")
+
 	r.PathPrefix("/images/").Handler(images)
 
 	log.Fatal(http.ListenAndServe(":10000", r))
