@@ -11,8 +11,26 @@ import (
 )
 
 func GetAllProducts(w http.ResponseWriter, r *http.Request){
+	cat := r.FormValue("categoryId")
+	orders := r.FormValue("_order")
+	_page := r.FormValue("_page")
+	page, _ := strconv.Atoi(_page)
+	page = (page-1) * 12
+	name := r.FormValue("q")
+	name = "%" + name + "%"
+	products, err := repo.GetAllProducts(cat, orders, page, name)
+	if err != nil{
+		json.NewEncoder(w).Encode(map[string]string{
+			"message" : "cannot get",
+		})
+		return
+	}
+	json.NewEncoder(w).Encode(products)
+}
+
+func GetNewProducts(w http.ResponseWriter, r *http.Request){
 	utils.SetupResponse(&w, r)
-	products := repo.GetAllProducts()
+	products := repo.GetNewProducts()
 	json.NewEncoder(w).Encode(products)
 }
 
@@ -22,6 +40,12 @@ func GetProductByID(w http.ResponseWriter, r *http.Request){
 	id, _ := strconv.Atoi(vars["id"])
 	product := repo.GetProductByID(int64(id))
 	json.NewEncoder(w).Encode(product)
+}
+
+func GetBestSale(w http.ResponseWriter, r *http.Request){
+	utils.SetupResponse(&w, r)
+	products := repo.GetBestSale()
+	json.NewEncoder(w).Encode(products)
 }
 
 func UpdateProductByID(w http.ResponseWriter, r *http.Request){
@@ -66,5 +90,20 @@ func CreateProduct(w http.ResponseWriter, r *http.Request){
 
 func DeleteProduct(w http.ResponseWriter, r *http.Request){
 	utils.SetupResponse(&w, r)
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	
+	err := repo.DeleteProduct(int64(id))
+
+	if err != nil {
+		json.NewEncoder(w).Encode(map[string]string{
+			"message" : err.Error(),
+		})
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{
+		"message" : "success",
+	})
 
 }
+

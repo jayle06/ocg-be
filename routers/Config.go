@@ -24,6 +24,10 @@ func RunServer() {
 	baseURL.HandleFunc("/products/{id}", controllers.GetProductByID).Methods("GET")
 	baseURL.HandleFunc("/products/{id}", controllers.UpdateProductByID).Methods("PUT")
 	baseURL.HandleFunc("/products", controllers.CreateProduct).Methods("POST")
+	baseURL.HandleFunc("/products/{id}", controllers.DeleteProduct).Methods("DELETE")
+
+	baseURL.HandleFunc("/new-products", controllers.GetNewProducts).Methods("GET")
+	baseURL.HandleFunc("/best-sale", controllers.GetBestSale).Methods("GET")
 
 	r.PathPrefix("/images/").Handler(images)
 
