@@ -6,52 +6,86 @@ import (
 	"github.com/final-project/models"
 )
 
-func GetAllProducts(category string, orders string, page int, name string) ([]models.Product, error) {
+func GetAllProducts(category string, orders string, page int, name string, sale string) ([]models.Product, error) {
 	db := database.Connect()
 	defer db.Close()
-	
+
 	var rows *sql.Rows
 	var err error
 	var products []models.Product
 
 	if orders == "desc" {
 		if category == "" {
-			rows, err = db.Query("SELECT * FROM product WHERE name LIKE ? ORDER BY price desc LIMIT ? OFFSET ?", name, 12, page)
-		}else {
-			rows, err = db.Query("SELECT p.* FROM products p JOIN product_category c ON p.id = c.product_id WHERE c.category_id = ? AND p.name LIKE ? ORDER BY p.price desc LIMIT ? OFFSET ?", category, name, 12, page)
+			rows, err = db.Query("SELECT * FROM products "+
+				"WHERE name LIKE ? AND is_sale = ? "+
+				"ORDER BY price desc LIMIT 12 OFFSET ?", name, sale, page)
+		} else {
+			rows, err = db.Query("SELECT p.* FROM products p "+
+				"JOIN product_category c ON p.id = c.product_id "+
+				"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? "+
+				"ORDER BY p.price desc LIMIT 12 OFFSET ?", category, name, sale, page)
 		}
-		
-	}else {
-		if len(category) == 0{
-			rows, err = db.Query("SELECT * FROM product WHERE name LIKE ? ORDER BY price ASC LIMIT ? OFFSET ?",name, 12, page)
-		}else {
-			rows, err = db.Query("SELECT p.* FROM products p JOIN product_category c ON p.id = c.product_id  WHERE c.id = ? AND p.name LIKE ? ORDER BY p.price asc LIMIT ? OFFSET ?",category ,name, 12, page)
+	} else {
+		if len(category) == 0 {
+			rows, err = db.Query("SELECT * FROM products "+
+				"WHERE name LIKE ? AND is_sale = ? "+
+				"ORDER BY price asc LIMIT 12 OFFSET ?", name, sale, page)
+		} else {
+			rows, err = db.Query("SELECT p.* FROM products p "+
+				"JOIN product_category c ON p.id = c.product_id "+
+				"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? "+
+				"ORDER BY p.price asc LIMIT 12 OFFSET ?", category, name, sale, page)
 		}
 	}
-
-	if err != nil{
+	if err != nil {
 		return products, err
 	}
-
 	for rows.Next() {
 		var product models.Product
-		rows.Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.IsSale, &product.PriceSale, &product.CreatedAt)
-		//fmt.Println(product)
+		rows.Scan(&product.ID, &product.Name, &product.Description, &product.Price,
+			&product.IsSale, &product.PriceSale, &product.CreatedAt)
 		product.Images = getImages(product.ID)
 		products = append(products, product)
 	}
 	return products, nil
 }
 
+func GetTotalProductByRequest(category string, name string, sale string) (int, error) {
+	db := database.Connect()
+	defer db.Close()
+
+	var rows *sql.Rows
+	var err error
+
+	if category == "" {
+		rows, err = db.Query("SELECT COUNT(*) FROM products "+
+			"WHERE name LIKE ? AND is_sale = ? ", name, sale)
+	} else {
+		rows, err = db.Query("SELECT COUNT(*) FROM products p "+
+			"JOIN product_category c ON p.id = c.product_id "+
+			"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? ", category, name, sale)
+	}
+
+	if err != nil {
+		return 0, err
+	}
+	var total int
+	if rows.Next() {
+		rows.Scan(&total)
+	}
+	return total, err
+}
+
 func GetNewProducts() []models.Product {
 	db := database.Connect()
 	defer db.Close()
-	rows, _ := db.Query("SELECT * FROM products ORDER BY created_at DESC LIMIT 5")
+	rows, _ := db.Query("SELECT * FROM products " +
+		"ORDER BY created_at DESC LIMIT 5")
 	var products []models.Product
 	for rows.Next() {
 		var product models.Product
-		rows.Scan(&product.ID, &product.Name, &product.Description, &product.Price, &product.IsSale, &product.PriceSale, &product.CreatedAt)
-		//fmt.Println(product)
+		rows.Scan(&product.ID, &product.Name, &product.Description,
+			&product.Price, &product.IsSale, &product.PriceSale, &product.CreatedAt)
 		product.Images = getImages(product.ID)
 		products = append(products, product)
 	}
@@ -85,7 +119,7 @@ func GetProductByID(id int64) models.Product {
 	return product
 }
 
-func GetBestSale() []models.Product{
+func GetBestSale() []models.Product {
 	db := database.Connect()
 	defer db.Close()
 	rows, _ := db.Query("SELECT p.* FROM products p LEFT JOIN order_items i on p.id = i.product_id GROUP BY p.id ORDER BY (sum(i.quantity)) desc LIMIT 5")
@@ -134,6 +168,9 @@ func CreateProduct(product models.Product) error {
 	for _, image := range product.Images {
 		//fmt.Println(image.ImageUrl)
 		_, err = db.Query("INSERT INTO images VALUES (?, ?)", product.ID, image.ImageUrl)
+	}
+	for _, category := range product.Categories {
+		_, err = db.Query("INSERT INTO product_category VALUES (?, ?)", product.ID, category.ID)
 	}
 	if err != nil {
 		return err
