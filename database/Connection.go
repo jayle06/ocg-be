@@ -7,7 +7,7 @@ import (
 
 const (
 	user     = "root"
-	password = "12345678"
+	password = "abc123"
 	host     = "127.0.0.1:3305"
 	database = "adidas"
 )

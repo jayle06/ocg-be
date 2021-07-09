@@ -166,7 +166,6 @@ func CreateProduct(product models.Product) error {
 		"VALUES (?, ?, ?, ?, ?, NOW())", product.Name, product.Description, product.Price, product.IsSale, product.PriceSale)
 
 	for _, image := range product.Images {
-		//fmt.Println(image.ImageUrl)
 		_, err = db.Query("INSERT INTO images VALUES (?, ?)", product.ID, image.ImageUrl)
 	}
 	for _, category := range product.Categories {

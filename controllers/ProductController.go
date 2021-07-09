@@ -2,10 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/final-project/models"
 	repo "github.com/final-project/repositories"
-	"github.com/final-project/utils"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -16,7 +14,6 @@ func GetAllProducts(w http.ResponseWriter, r *http.Request) {
 	orders := r.FormValue("_order")
 	_page := r.FormValue("_page")
 	sale := r.FormValue("_sale")
-	fmt.Println(sale)
 	page, _ := strconv.Atoi(_page)
 	page = (page - 1) * 12
 	name := r.FormValue("q")
@@ -56,13 +53,11 @@ func GetProductByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetBestSale(w http.ResponseWriter, r *http.Request) {
-	utils.SetupResponse(&w, r)
 	products := repo.GetBestSale()
 	json.NewEncoder(w).Encode(products)
 }
 
 func UpdateProductByID(w http.ResponseWriter, r *http.Request) {
-	utils.SetupResponse(&w, r)
 	var product models.Product
 	err := json.NewDecoder(r.Body).Decode(&product)
 	if err != nil {
