@@ -19,6 +19,7 @@ func RunServer() {
 	customerURL.HandleFunc("/products/{id}", controllers.GetProductByID).Methods("GET")
 	customerURL.HandleFunc("/new-products", controllers.GetNewProducts).Methods("GET")
 	customerURL.HandleFunc("/best-sale", controllers.GetBestSale).Methods("GET")
+	customerURL.HandleFunc("/orders", controllers.CreateOrder).Methods("POST")
 	customerURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
 
 	adminURL := r.PathPrefix("/admin").Subrouter()
@@ -36,6 +37,11 @@ func RunServer() {
 	adminURL.HandleFunc("/products/{id}", controllers.GetProductByID).Methods("GET")
 	adminURL.HandleFunc("/products/{id}", controllers.UpdateProductByID).Methods("PUT")
 	adminURL.HandleFunc("/products", controllers.CreateProduct).Methods("POST")
+
+	adminURL.HandleFunc("/orders", controllers.GetAllOrders).Methods("GET")
+	adminURL.HandleFunc("/orders/{id}", controllers.GetOrderById).Methods("GET")
+	adminURL.HandleFunc("/orders/{id}", controllers.UpdateOrder).Methods("PUT")
+	adminURL.HandleFunc("/orders/{id}", controllers.DeleteOrder).Methods("DELETE")
 
 	adminURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
 	adminURL.HandleFunc("/categories", controllers.CreateCategory).Methods("POST")
