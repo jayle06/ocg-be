@@ -20,7 +20,6 @@ func RunServer() {
 	customerURL.HandleFunc("/new-products", controllers.GetNewProducts).Methods("GET")
 	customerURL.HandleFunc("/best-sale", controllers.GetBestSale).Methods("GET")
 	customerURL.HandleFunc("/orders", controllers.CreateOrder).Methods("POST")
-	customerURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
 
 	adminURL := r.PathPrefix("/admin").Subrouter()
 
@@ -42,11 +41,6 @@ func RunServer() {
 	adminURL.HandleFunc("/orders/{id}", controllers.GetOrderById).Methods("GET")
 	adminURL.HandleFunc("/orders/{id}", controllers.UpdateOrder).Methods("PUT")
 	adminURL.HandleFunc("/orders/{id}", controllers.DeleteOrder).Methods("DELETE")
-
-	adminURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
-	adminURL.HandleFunc("/categories", controllers.CreateCategory).Methods("POST")
-	adminURL.HandleFunc("/categories/{id}", controllers.UpdateCategory).Methods("PUT")
-	adminURL.HandleFunc("/categories/{id}", controllers.DeleteCategory).Methods("DELETE")
 
 	adminURL.HandleFunc("/uploads", utils.UploadFile).Methods("POST")
 	images := http.StripPrefix("/images/", http.FileServer(http.Dir("./uploads/")))
