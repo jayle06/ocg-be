@@ -121,9 +121,9 @@ func GetOrderById(id int) (models.Order, error) {
 	}
 
 	rows, err = db.Query("SELECT product_id, quantity FROM order_items WHERE order_id = ?", id)
-	var items []models.OderItem
+	var items []models.OrderItem
 	for rows.Next() {
-		var item models.OderItem
+		var item models.OrderItem
 		rows.Scan(&item.ProductId, &item.Quantity)
 		items = append(items, item)
 	}
