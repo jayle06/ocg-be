@@ -48,9 +48,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "login successfully",
-	})
+	json.NewEncoder(w).Encode(user)
 }
 
 func Logout(w http.ResponseWriter, r *http.Request) {

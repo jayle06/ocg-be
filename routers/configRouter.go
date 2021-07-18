@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"fmt"
 	"github.com/final-project/controllers"
 	"github.com/final-project/middlewares"
 	"github.com/final-project/utils"
@@ -66,10 +67,13 @@ func RunServer() {
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
+		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	})
 
 	handler := c.Handler(r)
-
+	//handler := cors.Default().Handler(r)
+	fmt.Println("Server start on domain: http://localhost:10000")
 	log.Fatal(http.ListenAndServe(":10000", handler))
 }
