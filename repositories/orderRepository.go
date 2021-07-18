@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"time"
 )
 
-func CreateOrder(order models.Order) error {
+func CreateOrder(order models.Order) (models.Order, error) {
 	db := database.Connect()
 	defer db.Close()
 
 	row, err := db.Query("SELECT id FROM payments WHERE name = ?", order.Payment)
 	if err != nil {
-		return err
+		return order, err
 	}
 
 	var id int
@@ -24,12 +25,12 @@ func CreateOrder(order models.Order) error {
 	_, err = db.Query("INSERT INTO orders (full_name, phone_number, email, address, total, payment_id, created_at) "+
 		"VALUES (?, ?, ?, ?, ?, ?, NOW())", order.FullName, order.PhoneNumber, order.Email, order.Address, order.Total, id)
 	if err != nil {
-		return err
+		return order, err
 	}
 
 	row, err = db.Query("SELECT MAX(id) FROM orders")
 	if err != nil {
-		return err
+		return order, err
 	}
 	if row.Next() {
 		row.Scan(&id)
@@ -38,10 +39,11 @@ func CreateOrder(order models.Order) error {
 	for _, product := range order.OrderItems {
 		_, err = db.Query("INSERT INTO order_items VALUES (?, ? ,?)", product.ProductId, id, product.Quantity)
 		if err != nil {
-			return err
+			return order, err
 		}
 	}
-	return nil
+	order.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	return order, nil
 }
 
 func GetAllOrders(month int, page int) ([]models.Order, error) {

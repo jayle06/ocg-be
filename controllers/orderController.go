@@ -13,14 +13,12 @@ import (
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
 	json.NewDecoder(r.Body).Decode(&order)
-	err := repo.CreateOrder(order)
+	x, err := repo.CreateOrder(order)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "success",
-	})
+	json.NewEncoder(w).Encode(x)
 }
 
 func GetAllOrders(w http.ResponseWriter, r *http.Request) {

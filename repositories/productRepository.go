@@ -180,7 +180,27 @@ func CreateProduct(product models.Product) error {
 func DeleteProduct(id int64) error {
 	db := database.Connect()
 	defer db.Close()
-	_, err := db.Query("DELETE FROM products "+
+
+	_, err := db.Query("DELETE FROM images "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("UPDATE order_items "+
+		"SET product_id = NULL "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("DELETE FROM product_category "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("DELETE FROM products "+
 		"where id = ?", id)
 	if err != nil {
 		return err
