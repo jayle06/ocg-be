@@ -17,24 +17,24 @@ func GetAllProducts(category string, orders string, page int, name string, sale 
 	if orders == "desc" {
 		if category == "" {
 			rows, err = db.Query("SELECT * FROM products "+
-				"WHERE name LIKE ? AND is_sale = ? "+
-				"ORDER BY price desc LIMIT 12 OFFSET ?", name, sale, page)
+				"WHERE name LIKE ? "+
+				"ORDER BY price desc LIMIT 12 OFFSET ?", name, page)
 		} else {
 			rows, err = db.Query("SELECT p.* FROM products p "+
 				"JOIN product_category c ON p.id = c.product_id "+
-				"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? "+
-				"ORDER BY p.price desc LIMIT 12 OFFSET ?", category, name, sale, page)
+				"WHERE c.category_id = ? AND p.name LIKE ? "+
+				"ORDER BY p.price desc LIMIT 12 OFFSET ?", category, name, page)
 		}
 	} else {
 		if len(category) == 0 {
 			rows, err = db.Query("SELECT * FROM products "+
-				"WHERE name LIKE ? AND is_sale = ? "+
-				"ORDER BY price asc LIMIT 12 OFFSET ?", name, sale, page)
+				"WHERE name LIKE ? "+
+				"ORDER BY price asc LIMIT 12 OFFSET ?", name, page)
 		} else {
 			rows, err = db.Query("SELECT p.* FROM products p "+
 				"JOIN product_category c ON p.id = c.product_id "+
-				"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? "+
-				"ORDER BY p.price asc LIMIT 12 OFFSET ?", category, name, sale, page)
+				"WHERE c.category_id = ? AND p.name LIKE ? "+
+				"ORDER BY p.price asc LIMIT 12 OFFSET ?", category, name, page)
 		}
 	}
 	if err != nil {
@@ -59,11 +59,11 @@ func GetTotalProductByRequest(category string, name string, sale string) (int, e
 
 	if category == "" {
 		rows, err = db.Query("SELECT COUNT(*) FROM products "+
-			"WHERE name LIKE ? AND is_sale = ? ", name, sale)
+			"WHERE name LIKE ? ", name)
 	} else {
 		rows, err = db.Query("SELECT COUNT(*) FROM products p "+
 			"JOIN product_category c ON p.id = c.product_id "+
-			"WHERE c.category_id = ? AND p.name LIKE ? AND p.is_sale = ? ", category, name, sale)
+			"WHERE c.category_id = ? AND p.name LIKE ? ", category, name)
 	}
 
 	if err != nil {
@@ -180,7 +180,26 @@ func CreateProduct(product models.Product) error {
 func DeleteProduct(id int64) error {
 	db := database.Connect()
 	defer db.Close()
-	_, err := db.Query("DELETE FROM products "+
+
+	_, err := db.Query("DELETE FROM images "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("DELETE FROM order_items "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("DELETE FROM product_category "+
+		"WHERE product_id = ?", id)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Query("DELETE FROM products "+
 		"where id = ?", id)
 	if err != nil {
 		return err

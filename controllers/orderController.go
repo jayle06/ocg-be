@@ -13,14 +13,12 @@ import (
 func CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order models.Order
 	json.NewDecoder(r.Body).Decode(&order)
-	err := repo.CreateOrder(order)
+	x, err := repo.CreateOrder(order)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	json.NewEncoder(w).Encode(map[string]string{
-		"message": "success",
-	})
+	json.NewEncoder(w).Encode(x)
 }
 
 func GetAllOrders(w http.ResponseWriter, r *http.Request) {
@@ -95,4 +93,18 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "success",
 	})
+}
+
+func GetCustomerOrders(w http.ResponseWriter, r *http.Request) {
+	search := r.FormValue("q")
+	search = search + "%"
+	_page := r.FormValue("_page")
+	page, _ := strconv.Atoi(_page)
+	page = (page - 1) * 10
+	orders, err := repo.GetCustomerOrders(search, page)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(orders)
 }

@@ -5,15 +5,16 @@ import (
 	"fmt"
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"time"
 )
 
-func CreateOrder(order models.Order) error {
+func CreateOrder(order models.Order) (models.Order, error) {
 	db := database.Connect()
 	defer db.Close()
 
 	row, err := db.Query("SELECT id FROM payments WHERE name = ?", order.Payment)
 	if err != nil {
-		return err
+		return order, err
 	}
 
 	var id int
@@ -24,12 +25,12 @@ func CreateOrder(order models.Order) error {
 	_, err = db.Query("INSERT INTO orders (full_name, phone_number, email, address, total, payment_id, created_at) "+
 		"VALUES (?, ?, ?, ?, ?, ?, NOW())", order.FullName, order.PhoneNumber, order.Email, order.Address, order.Total, id)
 	if err != nil {
-		return err
+		return order, err
 	}
 
 	row, err = db.Query("SELECT MAX(id) FROM orders")
 	if err != nil {
-		return err
+		return order, err
 	}
 	if row.Next() {
 		row.Scan(&id)
@@ -38,10 +39,11 @@ func CreateOrder(order models.Order) error {
 	for _, product := range order.OrderItems {
 		_, err = db.Query("INSERT INTO order_items VALUES (?, ? ,?)", product.ProductId, id, product.Quantity)
 		if err != nil {
-			return err
+			return order, err
 		}
 	}
-	return nil
+	order.CreatedAt = time.Now().Format("2006-01-02 15:04:05")
+	return order, nil
 }
 
 func GetAllOrders(month int, page int) ([]models.Order, error) {
@@ -167,4 +169,23 @@ func DeleteOrder(id int) error {
 		return err
 	}
 	return nil
+}
+
+func GetCustomerOrders(search string, page int) ([]models.Order, error) {
+	db := database.Connect()
+	defer db.Close()
+	var orders []models.Order
+	rows, err := db.Query("SELECT o.id, o.full_name, o.email,o.total, p.name, o.created_at "+
+		"FROM orders o JOIN payments p ON o.payment_id = p.id "+
+		"WHERE o.email LIKE ? OR o.phone_number LIKE ? LIMIT 10 OFFSET ?", search, search, page)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var order models.Order
+		_ = rows.Scan(&order.ID, &order.FullName, &order.Email, &order.Total, &order.Payment, &order.CreatedAt)
+		orders = append(orders, order)
+	}
+	return orders, nil
 }
