@@ -94,3 +94,17 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 		"message": "success",
 	})
 }
+
+func GetCustomerOrders(w http.ResponseWriter, r *http.Request) {
+	search := r.FormValue("q")
+	search = search + "%"
+	_page := r.FormValue("_page")
+	page, _ := strconv.Atoi(_page)
+	page = (page - 1) * 10
+	orders, err := repo.GetCustomerOrders(search, page)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(orders)
+}

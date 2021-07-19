@@ -170,3 +170,22 @@ func DeleteOrder(id int) error {
 	}
 	return nil
 }
+
+func GetCustomerOrders(search string, page int) ([]models.Order, error) {
+	db := database.Connect()
+	defer db.Close()
+	var orders []models.Order
+	rows, err := db.Query("SELECT o.id, o.full_name, o.email,o.total, p.name, o.created_at "+
+		"FROM orders o JOIN payments p ON o.payment_id = p.id "+
+		"WHERE o.email LIKE ? OR o.phone_number LIKE ? LIMIT 10 OFFSET ?", search, search, page)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var order models.Order
+		_ = rows.Scan(&order.ID, &order.FullName, &order.Email, &order.Total, &order.Payment, &order.CreatedAt)
+		orders = append(orders, order)
+	}
+	return orders, nil
+}
