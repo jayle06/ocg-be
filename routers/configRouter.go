@@ -59,6 +59,7 @@ func RunServer() {
 
 	admin.HandleFunc("/products/{id}", controllers.DeleteProduct).Methods("DELETE")
 
+	admin.HandleFunc("/user", controllers.GetUserByEmail).Methods("GET")
 	admin.HandleFunc("/users", controllers.GetAllUsers).Methods("GET")
 	admin.HandleFunc("/users", controllers.CreateNewUser).Methods("POST")
 	admin.HandleFunc("/users/{id}", controllers.GetUserById).Methods("GET")
@@ -73,7 +74,7 @@ func RunServer() {
 	})
 
 	handler := c.Handler(r)
-	//handler := cors.Default().Handler(r)
+
 	fmt.Println("Server start on domain: http://localhost:10000")
 	log.Fatal(http.ListenAndServe(":10000", handler))
 }

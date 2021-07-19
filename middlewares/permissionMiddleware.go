@@ -2,7 +2,6 @@ package middlewares
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/final-project/database"
 	"github.com/final-project/models"
 	"github.com/final-project/utils"
@@ -35,8 +34,6 @@ func IsAuthorized(next http.Handler) http.Handler {
 		if row.Next() {
 			row.Scan(&user.Role)
 		}
-		fmt.Println("role: ", user.Role)
-
 		if user.Role != "ADMIN" {
 			w.WriteHeader(http.StatusUnauthorized)
 			json.NewEncoder(w).Encode(map[string]string{

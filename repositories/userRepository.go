@@ -42,6 +42,21 @@ func GetUserById(id int64) models.User {
 	return user
 }
 
+func GetUserByEmail(email string) (models.User, error) {
+	db := database.Connect()
+	defer db.Close()
+	var user models.User
+	row, err := db.Query("select u.id, u.name, u.phone_number, u.email, r.name "+
+		"from users u join roles r on r.id = u.role_id where u.email = ? ", email)
+	if err != nil {
+		return user, err
+	}
+	if row.Next() {
+		row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Email, &user.Role)
+	}
+	return user, nil
+}
+
 func UpdateUserById(id int64, user models.User) {
 	db := database.Connect()
 	defer db.Close()
