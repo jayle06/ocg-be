@@ -24,6 +24,9 @@ func RunServer() {
 	customerURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
 	customerURL.HandleFunc("/customer-orders", controllers.GetCustomerOrders).Methods("GET")
 
+	customerURL.HandleFunc("/payment", controllers.CheckPaymentMethods).Methods("POST")
+	customerURL.HandleFunc("/ipn-momo", controllers.IPNMomo).Methods("POST")
+
 	adminURL := r.PathPrefix("/admin").Subrouter()
 
 	r.HandleFunc("/login", controllers.Login).Methods("POST")
