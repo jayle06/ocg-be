@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/final-project/models"
 	repo "github.com/final-project/repositories"
+	"github.com/final-project/utils"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -109,5 +110,19 @@ func DeleteProduct(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "success",
 	})
+}
 
+func ImportProducts(w http.ResponseWriter, r *http.Request) {
+	productsCSV := utils.ReadProductsCSV()
+	products := utils.ConvertProductCSVToProduct(productsCSV)
+	go func() {
+		for _, product := range products {
+			err := repo.CreateProduct(product)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+		}
+	}()
+	json.NewEncoder(w).Encode(map[string]string{"message": "success"})
 }

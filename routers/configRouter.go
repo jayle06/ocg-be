@@ -44,6 +44,11 @@ func RunServer() {
 	adminURL.HandleFunc("/products", controllers.CreateProduct).Methods("POST")
 	adminURL.HandleFunc("/products/{id}", controllers.DeleteProduct).Methods("DELETE")
 
+	adminURL.HandleFunc("/multi-products", controllers.ImportProducts).Methods("POST")
+	adminURL.HandleFunc("/csv", utils.UploadCSV).Methods("POST")
+	csv := http.StripPrefix("/csv/", http.FileServer(http.Dir("./")))
+	r.PathPrefix("/csv/").Handler(csv)
+
 	adminURL.HandleFunc("/orders", controllers.GetAllOrders).Methods("GET")
 	adminURL.HandleFunc("/orders/{id}", controllers.GetOrderById).Methods("GET")
 	adminURL.HandleFunc("/orders/{id}", controllers.UpdateOrder).Methods("PUT")
