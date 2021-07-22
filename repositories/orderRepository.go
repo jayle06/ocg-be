@@ -189,3 +189,46 @@ func GetCustomerOrders(search string, page int) ([]models.Order, error) {
 	}
 	return orders, nil
 }
+
+func GetRevenueByDay(offset int) (interface{}, error) {
+	db := database.Connect()
+	defer db.Close()
+
+	//rows, err := db.Query()
+	db.Query("DELETE FROM calendar")
+
+	now := time.Now()
+	currentYear, currentMonth, _ := now.Date()
+	currentLocation := now.Location()
+	firstOfMonth := time.Date(currentYear, currentMonth, 1, 0, 0, 0, 0, currentLocation).Format("2006-01-02")
+
+	_, err := db.Query("CALL fill_calendar(?, DATE(NOW()))", firstOfMonth)
+
+	if err != nil {
+		return 0, err
+	}
+
+	rows, err := db.Query("select datefield, IFNULL(sum(total),0), IFNULL(sum(quantity), 0) " +
+		"from calendar c " +
+		"left join orders o on c.datefield = date(created_at) " +
+		"left join order_items ot on o.id = ot.order_id  " +
+		"where datefield  " +
+		"group by c.datefield")
+	if err != nil {
+		return 0, err
+	}
+
+	type Rev struct {
+		Date          string `json:"date"`
+		Revenue       int64  `json:"revenue"`
+		TotalProducts int64  `json:"total_products"`
+	}
+	var revs []Rev
+
+	for rows.Next() {
+		var rev Rev
+		rows.Scan(&rev.Date, &rev.Revenue, &rev.TotalProducts)
+		revs = append(revs, rev)
+	}
+	return revs, nil
+}

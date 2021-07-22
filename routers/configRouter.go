@@ -45,6 +45,7 @@ func RunServer() {
 	adminURL.HandleFunc("/orders/{id}", controllers.GetOrderById).Methods("GET")
 	adminURL.HandleFunc("/orders/{id}", controllers.UpdateOrder).Methods("PUT")
 	adminURL.HandleFunc("/orders/{id}", controllers.DeleteOrder).Methods("DELETE")
+	adminURL.HandleFunc("/revenues", controllers.GetRevenueByDay).Methods("GET")
 
 	adminURL.HandleFunc("/categories", controllers.GetAllCategories).Methods("GET")
 	adminURL.HandleFunc("/categories", controllers.CreateCategory).Methods("POST")

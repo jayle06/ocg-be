@@ -108,3 +108,12 @@ func GetCustomerOrders(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewEncoder(w).Encode(orders)
 }
+
+func GetRevenueByDay(w http.ResponseWriter, r *http.Request) {
+	revs, err := repo.GetRevenueByDay(6)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	json.NewEncoder(w).Encode(revs)
+}
