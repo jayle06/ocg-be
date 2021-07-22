@@ -36,6 +36,7 @@ func CreateOrder(order models.Order) (models.Order, error) {
 		row.Scan(&id)
 	}
 	fmt.Println(id)
+	order.ID = int64(id)
 	for _, product := range order.OrderItems {
 		_, err = db.Query("INSERT INTO order_items VALUES (?, ? ,?)", product.ProductId, id, product.Quantity)
 		if err != nil {
