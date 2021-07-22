@@ -37,7 +37,7 @@ func IPNMomo(w http.ResponseWriter, r *http.Request) {
 		if errCode[0] == "0" {
 			db := database.Connect()
 			defer db.Close()
-			_, err = db.Query("update adidas.orders set orders.statusId = 1 where id = ?", orderId[0])
+			_, err = db.Query("update adidas.orders set orders.status = 1 where id = ?", orderId[0])
 			if err != nil {
 				return
 			}
