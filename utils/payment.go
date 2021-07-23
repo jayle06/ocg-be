@@ -36,7 +36,7 @@ func MomoPayment(amount string) string {
 	var serectkey = "w7c1jJSJok65DZybUH0FPsheFsWmSBMZ"
 	var orderInfo = "Mua hang tai shop Linh Kien MH"
 	var returnUrl = "http://localhost:8080/redirect"
-	var notifyurl = "http://localhost:10000/api/v1/ipn-momo"
+	var notifyurl = "https://webhook.site/56e26564-ddb1-48e4-b83a-c5a3a2e80ad6/api/v1/ipn-momo"
 	var requestType = "captureMoMoWallet"
 	var extraData = "merchantName=;merchantId=MOMOPSMB20210716"
 
@@ -90,7 +90,7 @@ func MomoPayment(amount string) string {
 	//send HTTP to momo endpoint
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	//result

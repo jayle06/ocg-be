@@ -8,9 +8,6 @@ import (
 
 func main() {
 	fmt.Println("Hello Nam, cày project đi nhé !!!!")
-
-	//reportService.RunReportService()
-
 	go func() {
 		reportService.RunReportService()
 	}()

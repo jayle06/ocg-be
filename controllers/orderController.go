@@ -96,12 +96,12 @@ func UpdateOrder(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCustomerOrders(w http.ResponseWriter, r *http.Request) {
-	search := r.FormValue("q")
-	search = search + "%"
+	email := r.FormValue("_email")
+	phone := r.FormValue("_phone")
 	_page := r.FormValue("_page")
 	page, _ := strconv.Atoi(_page)
 	page = (page - 1) * 10
-	orders, err := repo.GetCustomerOrders(search, page)
+	orders, err := repo.GetCustomerOrders(email, phone, page)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
