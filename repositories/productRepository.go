@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"log"
 )
 
 func GetAllProducts(category string, orders string, page int, name string, sale string) ([]models.Product, error) {
@@ -141,6 +142,7 @@ func UpdateProductByID(product models.Product) error {
 		"SET name = ?, description = ?, price = ?, is_sale = ?, price_sale = ? "+
 		"WHERE id = ?", product.Name, product.Description, product.Price, product.IsSale, product.PriceSale, product.ID)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -153,7 +155,7 @@ func CreateProduct(product models.Product) error {
 	row, err := db.Query("SELECT MAX(id) FROM products")
 
 	if err != nil {
-		panic(err.Error())
+		log.Println(err)
 	}
 	if row.Next() {
 		row.Scan(&product.ID)
@@ -172,6 +174,7 @@ func CreateProduct(product models.Product) error {
 		_, err = db.Query("INSERT INTO product_category VALUES (?, ?)", product.ID, category.ID)
 	}
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil

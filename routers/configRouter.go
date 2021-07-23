@@ -78,7 +78,7 @@ func RunServer() {
 	admin.HandleFunc("/users/{id}", controllers.DeleteUserById).Methods("DELETE")
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:8080"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
