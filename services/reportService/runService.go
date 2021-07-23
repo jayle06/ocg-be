@@ -23,7 +23,7 @@ func RunReportService() {
 		}
 	})
 
-	c.AddFunc("0 0 19 * * * ", func() {
+	c.AddFunc("0 55 1 * * * ", func() {
 		msgs := rabbitMQService.Receiver(ch, q)
 		i := 1
 		var data [][5]string

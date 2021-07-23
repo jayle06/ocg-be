@@ -61,16 +61,20 @@ func getAdminEmail() []string {
 func getDataByID(id string) [][5]string {
 	db := database.Connect()
 	defer db.Close()
-	rows, _ := db.Query("SELECT p.name, p.price, o.created_at, ot.quantity "+
+	var rowsData [][5]string
+	rows, err := db.Query("SELECT p.name, p.price, o.created_at, ot.quantity "+
 		"FROM orders o  "+
 		"JOIN order_items ot ON o.id = ot.order_id "+
 		"JOIN products p ON p.id = ot.product_id "+
-		"WHERE o.id = ?", id)
+		"WHERE o.id = ? AND o.status_id <> 3", id)
+	if err != nil {
+		log.Println(err.Error())
+		return rowsData
+	}
 	var rowData [5]string
 	for i := 0; i < 5; i++ {
 		rowData[i] = " "
 	}
-	var rowsData [][5]string
 	for rows.Next() {
 		var name, price, created, quantity string
 		rows.Scan(&name, &price, &created, &quantity)

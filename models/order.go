@@ -10,4 +10,5 @@ type Order struct {
 	Total       int64       `json:"total"`
 	Payment     string      `json:"payment"`
 	CreatedAt   string      `json:"created_at"`
+	Status      string      `json:"status"`
 }

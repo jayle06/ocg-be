@@ -60,8 +60,9 @@ func GetAllOrders(month int, page int) ([]models.Order, error) {
 	var rows *sql.Rows
 	var err error
 	if month == 0 {
-		rows, err = db.Query("SELECT o.id, o.full_name, o.total, p.name, o.created_at "+
+		rows, err = db.Query("SELECT o.id, o.full_name, o.total, p.name, o.created_at, s.name "+
 			"FROM orders o JOIN payments p ON o.payment_id = p.id "+
+			"JOIN status s WHERE o.status_id = s.id "+
 			"LIMIT 10 OFFSET ?", page)
 		if err != nil {
 			return nil, err
@@ -78,10 +79,9 @@ func GetAllOrders(month int, page int) ([]models.Order, error) {
 
 	for rows.Next() {
 		var order models.Order
-		_ = rows.Scan(&order.ID, &order.FullName, &order.Total, &order.Payment, &order.CreatedAt)
+		_ = rows.Scan(&order.ID, &order.FullName, &order.Total, &order.Payment, &order.CreatedAt, &order.Status)
 		orders = append(orders, order)
 	}
-
 	return orders, nil
 }
 
@@ -121,14 +121,15 @@ func GetOrderById(id int) (models.Order, error) {
 
 	var order models.Order
 
-	rows, err := db.Query("SELECT o.id, o.full_name, o.phone_number, o.email, o.address, o.total, p.name, o.created_at "+
+	rows, err := db.Query("SELECT o.id, o.full_name, o.phone_number, o.email, o.address, o.total, p.name, o.created_at , status.id"+
 		"FROM orders o JOIN payments p ON o.payment_id = p.id "+
+		"JOIN status on status.id = o.status_id"+
 		"WHERE o.id = ?", id)
 	if err != nil {
 		return order, err
 	}
 	if rows.Next() {
-		rows.Scan(&order.ID, &order.FullName, &order.PhoneNumber, &order.Email, &order.Address, &order.Total, &order.Payment, &order.CreatedAt)
+		rows.Scan(&order.ID, &order.FullName, &order.PhoneNumber, &order.Email, &order.Address, &order.Total, &order.Payment, &order.CreatedAt, &order.Status)
 	}
 
 	rows, err = db.Query("SELECT product_id, quantity FROM order_items WHERE order_id = ?", id)
@@ -180,20 +181,21 @@ func DeleteOrder(id int) error {
 	return nil
 }
 
-func GetCustomerOrders(search string, page int) ([]models.Order, error) {
+func GetCustomerOrders(email string, phone string, page int) ([]models.Order, error) {
 	db := database.Connect()
 	defer db.Close()
 	var orders []models.Order
-	rows, err := db.Query("SELECT o.id, o.full_name, o.email,o.total, p.name, o.created_at "+
+	rows, err := db.Query("SELECT o.id, o.full_name, o.email,o.total, p.name, o.created_at, status.name "+
 		"FROM orders o JOIN payments p ON o.payment_id = p.id "+
-		"WHERE o.email LIKE ? OR o.phone_number LIKE ? LIMIT 10 OFFSET ?", search, search, page)
+		"JOIN status ON status.id = o.status_id "+
+		"WHERE o.email = ? AND o.phone_number = ? LIMIT 10 OFFSET ?", email, phone, page)
 	if err != nil {
 		return nil, err
 	}
 
 	for rows.Next() {
 		var order models.Order
-		_ = rows.Scan(&order.ID, &order.FullName, &order.Email, &order.Total, &order.Payment, &order.CreatedAt)
+		_ = rows.Scan(&order.ID, &order.FullName, &order.Email, &order.Total, &order.Payment, &order.CreatedAt, &order.Status)
 		orders = append(orders, order)
 	}
 	return orders, nil
