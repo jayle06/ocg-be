@@ -22,7 +22,7 @@ func getOrdersPerMinute() []string {
 	now := time.Now().Add(-time.Minute)
 	rows, err := db.Query("SELECT id FROM orders WHERE created_at >= ?", now)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Println(err)
 	}
 	for rows.Next() {
 		var i string
@@ -93,7 +93,7 @@ func parseDataToCSV(data [][5]string) string {
 	filename := "uploads/report/report" + time.Now().Format("2006-Jan-02") + ".csv"
 	csvFile, err := os.Create(filename)
 	if err != nil {
-		log.Fatalf("failed creating file: %s", err)
+		log.Println(err)
 	}
 
 	csvwriter := csv.NewWriter(csvFile)
@@ -130,7 +130,7 @@ func sendEmailToAdmin(fileName string) {
 	a_csv := mail.NewAttachment()
 	dat, err := ioutil.ReadFile(fileName)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	encoded := base64.StdEncoding.EncodeToString([]byte(dat))
 	a_csv.SetContent(encoded)

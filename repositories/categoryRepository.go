@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"log"
 )
 
 func CreateCategory(category models.Category) error {
@@ -11,7 +12,7 @@ func CreateCategory(category models.Category) error {
 
 	row, err := db.Query("SELECT MAX(id) FROM categories")
 	if err != nil {
-		panic(err.Error())
+		log.Println(err)
 	}
 	if row.Next() {
 		row.Scan(&category.ID)
@@ -22,6 +23,7 @@ func CreateCategory(category models.Category) error {
 
 	_, err = db.Query("INSERT INTO categories VALUES (?, ?)", category.ID, category.Name)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -49,6 +51,7 @@ func UpdateCategory(category models.Category) error {
 
 	_, err := db.Query("UPDATE categories SET name = ? WHERE id = ?", category.Name, category.ID)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 	return nil
@@ -59,6 +62,7 @@ func GetAllCategories() ([]models.Category, error) {
 	defer db.Close()
 	rows, err := db.Query("SELECT * FROM categories")
 	if err != nil {
+		log.Println(err)
 		return nil, err
 	}
 	var cates []models.Category

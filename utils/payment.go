@@ -17,7 +17,7 @@ import (
 
 func MomoPayment(amount string) string {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
-	//random orderID and requestID
+	//random requestID
 	b, err := flake.NextID()
 
 	var id int
