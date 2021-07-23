@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"log"
 	"time"
 )
 
@@ -14,6 +15,7 @@ func CreateOrder(order models.Order) (models.Order, error) {
 
 	row, err := db.Query("SELECT id FROM payments WHERE name = ?", order.Payment)
 	if err != nil {
+		log.Println(err)
 		return order, err
 	}
 
@@ -25,11 +27,13 @@ func CreateOrder(order models.Order) (models.Order, error) {
 	_, err = db.Query("INSERT INTO orders (full_name, phone_number, email, address, total, payment_id, created_at) "+
 		"VALUES (?, ?, ?, ?, ?, ?, NOW())", order.FullName, order.PhoneNumber, order.Email, order.Address, order.Total, id)
 	if err != nil {
+		log.Println(err)
 		return order, err
 	}
 
 	row, err = db.Query("SELECT MAX(id) FROM orders")
 	if err != nil {
+		log.Println(err)
 		return order, err
 	}
 	if row.Next() {
@@ -40,6 +44,7 @@ func CreateOrder(order models.Order) (models.Order, error) {
 	for _, product := range order.OrderItems {
 		_, err = db.Query("INSERT INTO order_items VALUES (?, ? ,?)", product.ProductId, id, product.Quantity)
 		if err != nil {
+			log.Println(err)
 			return order, err
 		}
 	}
@@ -66,6 +71,7 @@ func GetAllOrders(month int, page int) ([]models.Order, error) {
 			"FROM orders o JOIN payments p ON o.payment_id = p.id "+
 			"WHERE MONTH(o.created_at) = ? LIMIT 10 OFFSET ?", month, page)
 		if err != nil {
+			log.Println(err)
 			return nil, err
 		}
 	}
@@ -84,6 +90,7 @@ func GetRevenue(month int) (int, error) {
 	defer db.Close()
 	row, err := db.Query("SELECT SUM(total) FROM orders WHERE MONTH(created_at) = ?", month)
 	if err != nil {
+		log.Println(err)
 		return 0, err
 	}
 	var total int
@@ -98,6 +105,7 @@ func GetTotalOrderByMonth(month int) (int, error) {
 	defer db.Close()
 	row, err := db.Query("SELECT COUNT(*) FROM orders WHERE MONTH(created_at) = ?", month)
 	if err != nil {
+		log.Println(err)
 		return 0, err
 	}
 	var total int
@@ -206,6 +214,7 @@ func GetRevenueByDay(offset int) (interface{}, error) {
 	_, err := db.Query("CALL fill_calendar(?, DATE(NOW()))", firstOfMonth)
 
 	if err != nil {
+		log.Println(err)
 		return 0, err
 	}
 
@@ -216,6 +225,7 @@ func GetRevenueByDay(offset int) (interface{}, error) {
 		"where datefield  " +
 		"group by c.datefield")
 	if err != nil {
+		log.Println(err)
 		return 0, err
 	}
 

@@ -17,7 +17,7 @@ import (
 
 func MomoPayment(amount string) string {
 	flake := sonyflake.NewSonyflake(sonyflake.Settings{})
-	//random orderID and requestID
+	//random requestID
 	b, err := flake.NextID()
 
 	var id int
@@ -36,7 +36,7 @@ func MomoPayment(amount string) string {
 	var serectkey = "w7c1jJSJok65DZybUH0FPsheFsWmSBMZ"
 	var orderInfo = "Mua hang tai shop Linh Kien MH"
 	var returnUrl = "http://localhost:8080/redirect"
-	var notifyurl = "http://localhost:10000/api/v1/ipn-momo"
+	var notifyurl = "https://webhook.site/1b0a6087-d768-4af6-9e88-ffc7e6e43955/api/v1/ipn-momo"
 	var requestType = "captureMoMoWallet"
 	var extraData = "merchantName=;merchantId=MOMOPSMB20210716"
 
@@ -90,7 +90,7 @@ func MomoPayment(amount string) string {
 	//send HTTP to momo endpoint
 	resp, err := http.Post(endpoint, "application/json", bytes.NewBuffer(jsonPayload))
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err)
 	}
 
 	//result

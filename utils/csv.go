@@ -22,13 +22,13 @@ type ProductCSV struct {
 func ReadProductsCSV() []ProductCSV {
 	csvFile, err := os.Open("import.csv")
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	defer csvFile.Close()
 
 	csvLines, err := csv.NewReader(csvFile).ReadAll()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 	var productsCSV []ProductCSV
 	for _, line := range csvLines {
