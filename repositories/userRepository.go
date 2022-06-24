@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/final-project/database"
 	"github.com/final-project/models"
+	"log"
 )
 
 func CreateNewUser(user models.User) models.User {
@@ -11,7 +12,7 @@ func CreateNewUser(user models.User) models.User {
 	_, err := db.Query("insert into users (name, phone_number, email, password, role_id) "+
 		"values ( ?, ?, ?, ?, ?)", user.Name, user.PhoneNumber, user.Email, user.Password, 2)
 	if err != nil {
-		panic("Could not create new user")
+		log.Println(err)
 	}
 	return user
 }
@@ -42,6 +43,22 @@ func GetUserById(id int64) models.User {
 	return user
 }
 
+func GetUserByEmail(email string) (models.User, error) {
+	db := database.Connect()
+	defer db.Close()
+	var user models.User
+	row, err := db.Query("select u.id, u.name, u.phone_number, u.email, r.name "+
+		"from users u join roles r on r.id = u.role_id where u.email = ? ", email)
+	if err != nil {
+		log.Println(err)
+		return user, err
+	}
+	if row.Next() {
+		row.Scan(&user.ID, &user.Name, &user.PhoneNumber, &user.Email, &user.Role)
+	}
+	return user, nil
+}
+
 func UpdateUserById(id int64, user models.User) {
 	db := database.Connect()
 	defer db.Close()
@@ -54,6 +71,7 @@ func UpdateUserById(id int64, user models.User) {
 	_, err := db.Query("update users set name = ?, phone_number = ?, email = ?, role_id = ? "+
 		"where id = ?", user.Name, user.PhoneNumber, user.Email, roleId, id)
 	if err != nil {
+		log.Println(err)
 		return
 	}
 }
